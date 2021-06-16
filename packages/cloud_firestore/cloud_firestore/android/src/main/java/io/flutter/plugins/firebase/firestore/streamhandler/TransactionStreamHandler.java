@@ -67,8 +67,11 @@ public class TransactionStreamHandler implements OnTransactionResultListener, St
 
               Map<String, Object> attemptMap = new HashMap<>();
               attemptMap.put("appName", firestore.getApp().getName());
+              try {
+                activityRef.get().runOnUiThread(() -> events.success(attemptMap));
+              } catch (Exception ee){
 
-              activityRef.get().runOnUiThread(() -> events.success(attemptMap));
+              }
 
               try {
                 if (!semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
@@ -147,9 +150,12 @@ public class TransactionStreamHandler implements OnTransactionResultListener, St
               } else if (task.getResult() != null) {
                 map.put("complete", true);
               }
-
-              activityRef.get().runOnUiThread(() -> events.success(map));
-              activityRef.get().runOnUiThread(events::endOfStream);
+              try {
+                activityRef.get().runOnUiThread(() -> events.success(map));
+                activityRef.get().runOnUiThread(events::endOfStream);
+              } catch (Exception ee){
+                //
+              }
             });
   }
 
